@@ -1,0 +1,69 @@
+#include <Arduino.h>
+
+#include <Wire.h>
+
+#include <SoftwareSerial.h>
+
+int livingroom = 5;
+
+SoftwareSerial Bluetooth(0, 1);
+
+String Data; // Change to String to handle multi-character commands
+
+void sendData(String transmitData) {
+
+Bluetooth.println(transmitData);
+
+}
+
+int ledPin = 9; // LED pin with PWM capability
+
+int brightness = 0;
+
+void setup() {
+
+Bluetooth.begin(9600);
+
+pinMode(livingroom, OUTPUT); // Ensure livingroom is set as OUTPUT
+
+pinMode(ledPin, OUTPUT);
+
+}
+
+void loop() {
+
+// Read full string command from Bluetooth
+
+if (Bluetooth.available()) {
+
+Data = Bluetooth.readStringUntil('\n'); // Read the incoming string until newline
+
+Data.trim(); // Remove any trailing newline or carriage return
+
+if (Data == "on") { // Use strings directly
+
+digitalWrite(livingroom, HIGH); // Turn ON living room light
+
+sendData("Living Room Light ON");
+
+} else if (Data == "off") {
+
+digitalWrite(livingroom, LOW); // Turn OFF living room light
+
+sendData("Living Room Light OFF");
+
+}
+
+if (Data.toInt() >= 0 && Data.toInt() <= 255) {
+
+brightness = Data.toInt(); // Convert to int for brightness
+
+analogWrite(ledPin, brightness); // Set LED brightness
+
+sendData("LED Brightness Adjusted");
+
+}
+
+}
+
+}
